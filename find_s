@@ -1,0 +1,19 @@
+import pandas as pd
+
+def find_hypothesis(df):
+    hypothesis = {}
+    for column in df.columns:
+        if column != 'enjoysport':
+            hypothesis[column] = df[column][df['enjoysport'] == 'yes'].unique()
+
+    return hypothesis
+
+def main():
+    df = pd.read_csv('C:/Users/Lenovo/Documents/machine learning/enjoysport.csv')
+    hypothesis = find_hypothesis(df)
+    print("Most Specific Hypothesis:")
+    for key, value in hypothesis.items():
+        print(f"{key}: {value}")
+
+if __name__ == "__main__":
+    main()
