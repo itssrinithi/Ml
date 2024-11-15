@@ -1,0 +1,63 @@
+import pandas as pd
+
+def candidate_elimination(df, target_attribute):
+    S = [{column: None for column in df.columns if column != target_attribute}]
+    G = [{column: df[column].unique().tolist() for column in df.columns if column != target_attribute}]
+
+    for index, row in df.iterrows():
+        if row[target_attribute] == 'yes':
+            # Refine S
+            new_S = []
+            for s in S:
+                for column in s:
+                    if s[column] is None or s[column] == row[column]:
+                        new_S.append(s)
+                        break
+            S = new_S
+
+            # Refine G
+            for g in G:
+                for column in g:
+                    if row[column] not in g[column]:
+                        g[column] = [row[column]]
+        else:
+            # Refine S
+            new_S = []
+            for s in S:
+                refine = False
+                for column in s:
+                    if s[column] is not None and s[column] != row[column]:
+                        refine = True
+                        break
+                if refine:
+                    new_S.append(s)
+            S = new_S
+
+            # Refine G
+            new_G = []
+            for g in G:
+                for column in g:
+                    if row[column] in g[column]:
+                        g[column].remove(row[column])
+                if any(len(g[column]) > 0 for column in g):
+                    new_G.append(g)
+            G = new_G
+
+    return S, G
+
+def main():
+    df = pd.read_csv('C:/Users/Lenovo/Documents/machine learning/mydataset.csv')
+    S, G = candidate_elimination(df, 'Class')
+    
+    print("S (Specific Hypotheses):")
+    for hypothesis in S:
+        print(hypothesis)
+    print("\nG (General Hypotheses):")
+    for i, hypothesis in enumerate(G):
+        print(f"G{i+1}:")
+        for column, values in hypothesis.items():
+            print(f"{column}: {values}")
+        print()
+
+if __name__ == "__main__":
+    main()
