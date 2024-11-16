@@ -1,0 +1,38 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+
+# Define the probability density function
+def pdf(x, mu, sigma):
+    return norm.pdf(x, loc=mu, scale=sigma)
+
+# Generate sample data
+np.random.seed(0)
+mu_true = 5
+sigma_true = 2
+n_samples = 1000
+x = np.random.normal(mu_true, sigma_true, n_samples)
+
+# Initialize parameters
+mu_est = 0
+sigma_est = 1
+
+# Expectation-Maximization (EM) algorithm
+for i in range(10):
+    # E-step
+    gamma = pdf(x, mu_est, sigma_est)
+    gamma_sum = np.sum(gamma)
+    
+    # M-step
+    mu_est = np.sum(x * gamma) / gamma_sum
+    sigma_est = np.sqrt(np.sum((x - mu_est)**2 * gamma) / gamma_sum)
+    
+    print(f"Iteration {i+1}: mu = {mu_est:.4f}, sigma = {sigma_est:.4f}")
+
+# Plot the results
+plt.hist(x, bins=30, density=True, alpha=0.5, label='Data')
+x_range = np.linspace(mu_true - 3*sigma_true, mu_true + 3*sigma_true, 100)
+plt.plot(x_range, pdf(x_range, mu_true, sigma_true), 'r-', label='True Distribution')
+plt.plot(x_range, pdf(x_range, mu_est, sigma_est), 'g-', label='Estimated Distribution')
+plt.legend()
+plt.show()
