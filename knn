@@ -1,0 +1,50 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+
+def load_data(csv_file):
+    return pd.read_csv(csv_file)
+
+class KNN:
+    def __init__(self, k):
+        self.k = k
+
+    def fit(self, X, y):
+        self.X_train = X
+        self.y_train = y
+
+    def predict(self, X):
+        predictions = []
+        for x in X:
+            distances = np.sqrt(np.sum((x - self.X_train) ** 2, axis=1))
+            k_indices = np.argsort(distances)[:self.k]
+            k_nearest_labels = self.y_train[k_indices]
+            prediction = np.bincount(k_nearest_labels).argmax()
+            predictions.append(prediction)
+        return np.array(predictions)
+
+
+def main():
+    csv_file = 'data.csv'  
+    data = load_data(csv_file)
+
+
+    X = data.drop(data.columns[-1], axis=1).values
+    y = data[data.columns[-1]].values
+
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+   
+    knn = KNN(k=5)
+    knn.fit(X_train, y_train)
+    y_pred = knn.predict(X_test)
+
+    
+    accuracy = accuracy_score(y_test, y_pred)
+    print("Accuracy:", accuracy)
+
+if __name__ == "__main__":
+    main()
